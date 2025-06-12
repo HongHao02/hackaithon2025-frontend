@@ -1,0 +1,133 @@
+{
+  "name": "hn02-hello-world-extension",
+  "displayName": ".",
+  "description": "first vscode extension",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:hn02-hello-world-extension.generateMessage",
+    "onCommand:hn02-hello-world-extension.getCodeReview",
+    "onView:helloWorldView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "hn02-hello-world-extension.generateMessage",
+        "title": "Generate Message"
+      },
+      {
+        "command": "hn02-hello-world-extension.commitAction",
+        "title": "Execute SCM Action"
+      },
+      {
+        "command": "hn02-hello-world-extension.getCodeReview",
+        "title": "Get Code Review"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "helloWorldContainer",
+          "title": "Auto Generated",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "views": {
+      "helloWorldContainer": [
+        {
+          "id": "helloWorldView",
+          "name": "Hello World",
+          "type": "webview",
+          "icon": "$(globe)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AI Commit Generator",
+      "properties": {
+        "hn02-hello-world-extension.format": {
+          "type": "string",
+          "default": "CEP-XXX: {message}",
+          "description": "Template format for the commit message"
+        },
+        "hn02-hello-world-extension.commitType": {
+          "type": "string",
+          "enum": [
+            "none",
+            "feat",
+            "fix",
+            "docs",
+            "refactor"
+          ],
+          "default": "none",
+          "description": "Select the commit type to use for generated messages"
+        },
+        "hn02-hello-world-extension.maxLen": {
+          "type": "number",
+          "default": 150,
+          "description": "Maximum allowed length for the commit message"
+        },
+        "hn02-hello-world-extension.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:3001/generate",
+          "description": "URL of the backend API that generates commit messages."
+        },
+        "hn02-hello-world-extension.authToken": {
+          "type": "string",
+          "default": "",
+          "description": "Authorization token for backend API (AUTH_SECRET)."
+        },
+        "hn02-hello-world-extension.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI key."
+        },
+        "hn02-hello-world-extension.model": {
+          "type": "string",
+          "default": "gpt-4o",
+          "enum": [
+            "gpt-4o",
+            "gpt-3.5-turbo"
+          ],
+          "description": "OpenAI model to use for generating commit messages."
+        },
+        "hn02-hello-world-extension.customPrompt": {
+          "type": "string",
+          "default": "",
+          "description": ""
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.100.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "child_process": "^1.0.2",
+    "util": "^0.12.5"
+  }
+}
