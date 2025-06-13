@@ -69,14 +69,14 @@
           "default": "none",
           "description": "Select the commit type to use for generated messages"
         },
-        "hn02-hello-world-extension.maxLen": {
+        "hn02-hello-world-extension.maxLengthInLine": {
           "type": "number",
           "default": 150,
-          "description": "Maximum allowed length for the commit message"
+          "description": "Maximum allowed length for the commit message in a single line"
         },
         "hn02-hello-world-extension.backendUrl": {
           "type": "string",
-          "default": "http://localhost:3001/generate",
+          "default": "http://localhost:3001",
           "description": "URL of the backend API that generates commit messages."
         },
         "hn02-hello-world-extension.authToken": {

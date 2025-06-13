@@ -2,38 +2,123 @@ const vscode = acquireVsCodeApi();
 
 const messageInput = document.getElementById('messageInput');
 const generateButton = document.getElementById('generateButton');
+const loader = document.getElementById('loader');
 const commitDropdown = document.getElementById('commitDropdown');
-const commitButton = document.getElementById('commitButton');
 const codeReviewButton = document.getElementById('codeReviewButton');
+const modelDropdownGenerate = document.getElementById('modelDropdownGenerate');
+const modelDropdownReview = document.getElementById('modelDropdownReview');
+const tabButtons = document.querySelectorAll('.tab-button');
+const tabContents = document.querySelectorAll('.tab-content');
+const reviewDialog = document.getElementById('reviewDialog');
+const reviewContent = document.getElementById('reviewContent');
+const closeDialogButton = document.getElementById('closeDialog');
 
 console.log('Webview initialized. Textarea editable:', !messageInput.disabled && !messageInput.readOnly);
 
+// Initialize active tab on load
+function initializeTabs() {
+    tabButtons.forEach(button => {
+        const tabId = button.getAttribute('data-tab');
+        if (tabId === 'generate-commit') {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+    tabContents.forEach(content => {
+        content.style.display = content.id === 'generate-commit' ? 'block' : 'none';
+    });
+    console.log('Initialized tab: generate-commit');
+}
+
+// Call initialization on load
+window.addEventListener('load', () => {
+    initializeTabs();
+    console.log('Fetching OpenAI models');
+    vscode.postMessage({ type: 'fetchModels' });
+});
+
+// Synchronize model dropdowns
+[modelDropdownGenerate, modelDropdownReview].forEach(dropdown => {
+    dropdown.addEventListener('change', (event) => {
+        const selectedModel = event.target.value;
+        console.log('Model selected:', selectedModel);
+        modelDropdownGenerate.value = selectedModel;
+        modelDropdownReview.value = selectedModel;
+    });
+});
+
+// Tab switching
+tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        tabContents.forEach(content => {
+            content.style.display = content.id === tabId ? 'block' : 'none';
+        });
+        console.log('Switched to tab:', tabId);
+    });
+});
+
+// Generate Message
 generateButton.addEventListener('click', () => {
     console.log('Generate Message button clicked');
-    vscode.postMessage({ type: 'generateMessage' });
+    vscode.postMessage({ type: 'generateMessage', model: modelDropdownGenerate.value });
 });
 
-commitDropdown.addEventListener('change', (event) => {
-    console.log('Commit dropdown changed:', event.target.value);
-    commitButton.disabled = !event.target.value;
-});
-
-commitButton.addEventListener('click', () => {
-    const action = commitDropdown.value;
+// SCM Action with Confirmation
+commitDropdown.addEventListener('change', async (event) => {
+    const action = event.target.value;
     const message = messageInput.value.trim();
-    console.log('Commit button clicked with action:', action, 'and message:', message);
-    if (action && message) {
-        vscode.postMessage({ type: 'commitAction', action, message });
-    } else if (!message) {
-        alert('Please enter a commit message.');
+    console.log('Commit dropdown changed:', action);
+
+    if (!action || !message) {
+        if (action) {
+            vscode.postMessage({ type: 'showErrorMessage', value: 'Please enter a commit message.' });
+        }
+        commitDropdown.value = ''; // Reset dropdown
+        return;
     }
+
+    // Show confirmation dialog
+    const confirmed = await vscode.postMessage({
+        type: 'requestConfirmation',
+        value: `Are you sure you want to perform '${action}' with message: "${message}"?`
+    });
+
+    window.addEventListener('message', function handleConfirmation(event) {
+        const msg = event.data;
+        if (msg.type === 'confirmationResponse' && msg.confirmed) {
+            console.log('Confirmed action:', action);
+            vscode.postMessage({ type: 'commitAction', action, message });
+            window.removeEventListener('message', handleConfirmation);
+        } else if (msg.type === 'confirmationResponse') {
+            console.log('Action cancelled');
+            commitDropdown.value = ''; // Reset dropdown
+            window.removeEventListener('message', handleConfirmation);
+        }
+    }, { once: true });
 });
 
+// Message Input
+messageInput.addEventListener('input', () => {
+    console.log('Textarea input changed.');
+});
+
+// Code Review
 codeReviewButton.addEventListener('click', () => {
     console.log('Code Review button clicked');
-    vscode.postMessage({ type: 'getCodeReview' });
+    vscode.postMessage({ type: 'getCodeReview', model: modelDropdownReview.value });
 });
 
+// Close Dialog
+closeDialogButton.addEventListener('click', () => {
+    reviewDialog.style.display = 'none';
+    console.log('Closed review dialog');
+});
+
+// Message Handler
 window.addEventListener('message', (event) => {
     const message = event.data;
     console.log('Received message:', message);
@@ -42,31 +127,92 @@ window.addEventListener('message', (event) => {
             messageInput.value = message.value;
             messageInput.disabled = false;
             messageInput.readOnly = false;
-            console.log('Textarea updated with value:', message.value);
+            console.log('Textarea updated with value:', message.value, 'Editable:', !messageInput.disabled);
             break;
         case 'startLoading':
+            loader.style.display = 'flex';
             generateButton.disabled = true;
-            generateButton.classList.add('loading');
-            generateButton.textContent = 'Generating...';
+            commitDropdown.disabled = true;
+            modelDropdownGenerate.disabled = true;
+            modelDropdownReview.disabled = true;
+            generateButton.classList.add('processing');
+            // Disable code review button
+            codeReviewButton.classList.add('processing');
+            codeReviewButton.disabled = true;
+            codeReviewButton.textContent = 'Processing... Please wait';
+
             console.log('Started loading state');
             break;
         case 'stopLoading':
+            loader.style.display = 'none';
             generateButton.disabled = false;
-            generateButton.classList.remove('loading');
-            generateButton.textContent = 'Generate Message';
+            commitDropdown.disabled = false;
+            modelDropdownGenerate.disabled = false;
+            modelDropdownReview.disabled = false;
+            generateButton.classList.remove('processing');
+
+            // Disable code review button
+            codeReviewButton.classList.remove('processing');
+            codeReviewButton.disabled = false;
+            codeReviewButton.textContent = 'Get Code Review';
+
             console.log('Stopped loading state');
             break;
         case 'startCommitLoading':
-            commitButton.disabled = true;
-            commitButton.classList.add('loading');
-            commitButton.textContent = 'Committing...';
+            loader.style.display = 'flex';
+            commitDropdown.disabled = true;
+            modelDropdownGenerate.disabled = true;
+            modelDropdownReview.disabled = true;
+            commitDropdown.classList.add('loading');
             console.log('Started commit loading state');
             break;
         case 'stopCommitLoading':
-            commitButton.disabled = !commitDropdown.value;
-            commitButton.classList.remove('loading');
-            commitButton.textContent = 'Execute Commit';
+            loader.style.display = 'none';
+            commitDropdown.disabled = false;
+            modelDropdownGenerate.disabled = false;
+            modelDropdownReview.disabled = false;
+            commitDropdown.classList.remove('loading');
+            commitDropdown.value = ''; // Reset dropdown after action
             console.log('Stopped commit loading state');
+            break;
+        case 'startModelLoading':
+            loader.style.display = 'flex';
+            modelDropdownGenerate.disabled = true;
+            modelDropdownReview.disabled = true;
+            console.log('Started model loading state');
+            break;
+        case 'stopModelLoading':
+            loader.style.display = 'none';
+            modelDropdownGenerate.disabled = false;
+            modelDropdownReview.disabled = false;
+            console.log('Stopped model loading state');
+            break;
+        case 'updateModelDropdown':
+            [modelDropdownGenerate, modelDropdownReview].forEach(dropdown => {
+                dropdown.innerHTML = '<option value="">Select OpenAI Model</option>';
+                message.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    dropdown.appendChild(option);
+                });
+            });
+            console.log('Updated model dropdowns with:', message.models);
+            break;
+        case 'showCodeReview':
+            reviewContent.textContent = message.review;
+            reviewDialog.style.display = 'flex';
+            console.log('Showing code review dialog with:', message.review);
+            break;
+        case 'showErrorMessage':
+            alert(message.value);
+            console.log('Showing error message:', message.value);
+            break;
+        case 'requestConfirmation':
+            vscode.postMessage({
+                type: 'confirmationResponse',
+                confirmed: confirm(message.value)
+            });
             break;
     }
 });

@@ -11,24 +11,18 @@ export const CONFIG_KEYS = {
     AUTH_TOKEN: `authToken`,
     FORMAT: `format`,
     COMMIT_TYPE: `commitType`,
-    MAX_LEN: `maxLen`,
+    MAX_LENGTH_IN_LINE: `maxLengthInLine`,
     API_KEY: `apiKey`,
     PROMPT: `customPrompt`,
     MODEL: `model`,
-    CODE_REVIEW_API_ENDPOINT: `codeReviewApiEndpoint`
 };
 
-export const DEFAULT_CONFIG = {
-    BACKEND_URL: 'http://localhost:3001/generate',
-    AUTH_TOKEN: '',
-    FORMAT: 'conventional',
-    COMMIT_TYPE: 'feat',
-    MAX_LEN: 100,
-    API_KEY: '',
-    PROMPT: 'Generate a concise commit message',
-    MODEL: 'gpt-3.5-turbo',
-    GENERATE_COMMIT_MESSAGE_ENDPOINT: 'http://localhost:3001/generate/commit-messages',
-    CODE_REVIEW_API_ENDPOINT: 'http://localhost:3001/generate/review-comments'
+export const END_POINTS = {
+    GENERATE: {
+        COMMIT_MESSAGE: '/generate/commit-messages',
+        CODE_REVIEW: '/generate/review-comments'
+    },
+    GET_MODELS: '/models',
 };
 
 export const VIEW_IDS = {

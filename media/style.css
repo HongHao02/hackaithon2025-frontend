@@ -1,6 +1,6 @@
 body {
     padding: 12px;
-    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif);
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, '');
     background-color: var(--vscode-sideBar-background, #f3f3f3);
     color: var(--vscode-foreground, #1f2937);
 }
@@ -11,29 +11,68 @@ h1 {
     color: var(--vscode-sideBarTitle-foreground, #1f2937);
 }
 
-select, button {
+.tab-container {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 8px;
+    background-color: var(--vscode-button-secondaryBackground, #e5e5e5);
+    color: var(--vscode-button-secondaryForeground, #333333);
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.2s, border-bottom-color 0.2s;
+}
+
+.tab-button.active {
+    background-color: var(--vscode-button-background, #007acc);
+    color: var(--vscode-button-foreground, #ffffff);
+    border-bottom-color: var(--vscode-focusBorder, #007acc);
+}
+
+.tab-button:hover:not(.active) {
+    background-color: var(--vscode-button-secondaryHoverBackground, #d0d0d0);
+}
+
+.tab-content {
+    display: none; /* Hide all tab content by default */
+}
+
+.tab-content.active {
+    display: block; /* Show only active tab content */
+}
+
+.action-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+textarea, select, pre, button {
     display: block;
     width: 100%;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     padding: 8px;
     font-size: 0.95em;
     box-sizing: border-box;
 }
 
-.commit-message {
-    height: 200px;
-    width: 100%;
-    max-height: 500px;
-    margin-bottom: 12px;
+textarea {
+    height: 120px;
+    max-height: 300px;
     resize: vertical;
     border: 1px solid var(--vscode-input-border, #d1d5db);
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: var(--vscode-input-background, #ffffff);
     color: var(--vscode-input-foreground, #1f2937);
     font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
     line-height: 1.6;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.3s ease, box-shadow 0.2s ease;
 }
 
 textarea::placeholder {
@@ -42,13 +81,25 @@ textarea::placeholder {
 }
 
 textarea:hover {
-    border-color: var(--vscode-focusBorder, #60a5fa);
+    border-color: var(--vscode-focus-border, #60a5fa);
 }
 
 textarea:focus {
     outline: none;
     border-color: var(--vscode-focusBorder, #3b82f6);
-    box-shadow: 0 0 0 3px var(--vscode-inputOption-activeBorder, rgba(59, 130, 246, 0.3));
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+pre {
+    background-color: var(--vscode-editor-background, #1e1e1e);
+    color: var(--vscode-editor-foreground, #d4d4d4);
+    padding: 12px;
+    border-radius: 4px;
+    overflow: auto;
+    max-height: 300px;
+    font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
+    white-space: pre-wrap;
+    user-select: none;
 }
 
 button {
@@ -58,7 +109,7 @@ button {
     border: none;
     padding: 8px;
     border-radius: 4px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 button:hover:not(:disabled) {
@@ -71,13 +122,44 @@ button:disabled {
     cursor: not-allowed;
 }
 
+button.processing {
+    opacity: 0.7;
+}
+
+select, .model-dropdown {
+    border: 1px solid var(--vscode-input-border, #d1d5db);
+    border-radius: 3px;
+    background-color: var(--vscode-input-background, #ffffff);
+    color: var(--vscode-input-foreground, #1f2937);
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, '');
+}
+
+select:disabled, .model-dropdown:disabled {
+    background-color: var(--vscode-button-secondaryBackground, #cccccc);
+    color: var(--vscode-button-secondaryForeground, #6b7280);
+    cursor: not-allowed;
+}
+
+select.loading::before, .model-dropdown.loading::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--vscode-input-foreground, #1f2937);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
 .loader {
     display: none;
     align-items: center;
     gap: 8px;
     font-size: 0.9em;
     color: var(--vscode-foreground, #1f2937);
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .loader::before {
@@ -90,8 +172,37 @@ button:disabled {
     animation: spin 0.8s linear infinite;
 }
 
+.dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.dialog-content {
+    background-color: var(--vscode-editor-background, #ffffff);
+    padding: 20px;
+    border-radius: 4px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-content h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--vscode-foreground, #1f2937);
+}
+
 @keyframes spin {
     to {
-        transform: translateY(-50%) rotate(360deg);
+        transform: rotate(360deg);
     }
 }
