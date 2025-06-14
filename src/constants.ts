@@ -13,7 +13,6 @@ export const CONFIG_KEYS = {
     MAX_LENGTH_IN_LINE: `maxLengthInLine`,
     API_KEY: `apiKey`,
     PROMPT: `customPrompt`,
-    MODEL: `model`,
 };
 
 export const END_POINTS = {

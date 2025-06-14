@@ -79,11 +79,6 @@
           "default": "",
           "description": "OpenAI API key."
         },
-        "ptn-ai-commit-generator.model": {
-          "type": "string",
-          "default": "gpt-4o",
-          "description": "OpenAI model to use for generating commit messages."
-        },
         "ptn-ai-commit-generator.customPrompt": {
           "type": "string",
           "default": "",
