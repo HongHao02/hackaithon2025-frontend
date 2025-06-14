@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 
 import { COMMANDS, CONFIG_KEYS, SCM_ACTIONS, EXTENSION_NAME, VIEW_IDS, END_POINTS } from './constants';
 import { getBackendUrl, getNonce, getStagedDiffOrShowError } from './helpers';
-import { fetchCodeReview, fetchMessage, fetchOpenAiModels } from './services';
+import { fetchCodeReview, fetchCommitMessages, fetchOpenAiModels } from './services';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log(`Congratulations, your extension "${EXTENSION_NAME}" is now active!`);
@@ -16,7 +16,6 @@ export function activate(context: vscode.ExtensionContext) {
         const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
         const authToken = config.get(CONFIG_KEYS.AUTH_TOKEN) as string;
         const format = config.get(CONFIG_KEYS.FORMAT) as string;
-        const commitType = config.get(CONFIG_KEYS.COMMIT_TYPE) as string;
         const maxLenInLine = config.get(CONFIG_KEYS.MAX_LENGTH_IN_LINE) as number;
         const apiKey = config.get(CONFIG_KEYS.API_KEY) as string;
         const prompt = config.get(CONFIG_KEYS.PROMPT) as string;
@@ -29,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (!result) {
                 webviewView.webview.postMessage({ type: 'stopLoading' });
                 return;
-            };
+            }
             finalDiff = result.diff.trim();
         } catch (error) {
             webviewView.webview.postMessage({ type: 'stopLoading' });
@@ -38,7 +37,15 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         try {
-            const message = await fetchMessage({ url: generateCommitMessageEndpoint, authToken, format, commitType, length: maxLenInLine, apiKey, prompt, model, diff: finalDiff });
+            const message = await fetchCommitMessages({
+                url: generateCommitMessageEndpoint,
+                authToken,
+                format,
+                maxLengthPerLine: maxLenInLine,
+                apiKey,
+                customPrompt: prompt,
+                model,
+                diff: finalDiff });
             webviewView.webview.postMessage({ type: 'updateInput', value: message });
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to fetch message: ${error}`);
@@ -80,7 +87,6 @@ export function activate(context: vscode.ExtensionContext) {
         const repository = git.repositories[0];
         console.log('Git repository:', repository.rootUri.fsPath);
 
-        const status = await repository.status();
         const state = repository.state;
         if (!state) {
             throw new Error('Failed to retrieve repository state.');
@@ -176,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(generateMessageCommand, commitActionCommand, getCodeReviewCommand);
 
     // Register the Webview View Provider
-    const provider = new HelloWorldViewProvider(context.extensionUri);
+    const provider = new AutoCommiterViewProvider(context.extensionUri);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(VIEW_IDS.VIEW, provider)
     );
@@ -184,7 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Webview view initialized');
 }
 
-class HelloWorldViewProvider implements vscode.WebviewViewProvider {
+class AutoCommiterViewProvider implements vscode.WebviewViewProvider {
     constructor(private readonly _extensionUri: vscode.Uri) { }
 
     public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, token: vscode.CancellationToken) {

@@ -1,71 +1,30 @@
-# hn02-hello-world-extension README
+# AI Commit Generator
 
-This is the README for your extension "hn02-hello-world-extension". After writing up a brief description, we recommend including the following sections.
+Generate AI-powered Git commit messages directly from Visual Studio Code using OpenAI ChatGPT Models.
 
-## Features
+## 🚀 Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Automatically generate commit messages from staged changes
+- Supports custom commit message format
+- Supports custom prompt for generate commit message
+- Enforces max length per line
+- Able to generate commit message by your given custom prompt
+- Configurable via extension settings
+- Backend powered by your own OpenAI API key
 
-For example if there is an image subfolder under your extension project workspace:
+## ⚙️ Extension Settings
+- `ptn-ai-commit-generator.backendBaseUrl`: URL of your backend API that generates commit messages
+- `ptn-ai-commit-generator.authToken`: **Authorization token** (AUTH_SECRET) for security
+- `ptn-ai-commit-generator.format`: Format of the commit message (e.g., `{type}: {message}`)
+- `ptn-ai-commit-generator.customPrompt`: Allowed custom prompt
+- `ptn-ai-commit-generator.maxLengthInLine`: Max length of commit message per line
+- `ptn-ai-commit-generator.apiKey`: Using your own API Key
 
-\!\[feature X\]\(images/feature-x.png\)
+## 🧪 How to Use
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+1. Stage your Git changes
+2. Click on the PTN AI Commit Generator icon in the left side bar
+3. Select `OpenAI Model` to be used
+4. Click on `Generate Message` button
+4. Review and Edit the message
+5. `Select SCM Action` to action with your message

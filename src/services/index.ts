@@ -2,18 +2,17 @@ import * as vscode from 'vscode';
 import { CommitResponse } from "../types/base.types";
 
 // Fetch commit message
-export async function fetchMessage(config: {
+export async function fetchCommitMessages(config: {
     url: string,
     authToken: string,
     format: string,
-    commitType: string,
-    length: number,
+    maxLengthPerLine: number,
     apiKey: string,
-    prompt: string,
+    customPrompt: string,
     model: string,
     diff: string
 }): Promise<string> {
-    const { url, authToken, format, commitType, length: maxLen, apiKey, prompt, model, diff } = config;
+    const { url, authToken, format, maxLengthPerLine, apiKey, customPrompt, model, diff } = config;
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -23,11 +22,10 @@ export async function fetchMessage(config: {
             },
             body: JSON.stringify({
                 diff,
-                prompt,
+                customPrompt,
                 model,
                 format,
-                commitType,
-                maxLength: maxLen,
+                maxLengthPerLine,
                 apiKey
             }),
         });

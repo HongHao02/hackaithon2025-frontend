@@ -1,4 +1,4 @@
-export const EXTENSION_NAME = 'hn02-hello-world-extension';
+export const EXTENSION_NAME = 'ptn-ai-commit-generator';
 
 export const COMMANDS = {
     GENERATE_MESSAGE: `${EXTENSION_NAME}.generateMessage`,
@@ -7,10 +7,9 @@ export const COMMANDS = {
 };
 
 export const CONFIG_KEYS = {
-    BACKEND_URL: `backendUrl`,
+    BACKEND_URL: `backendBaseUrl`,
     AUTH_TOKEN: `authToken`,
     FORMAT: `format`,
-    COMMIT_TYPE: `commitType`,
     MAX_LENGTH_IN_LINE: `maxLengthInLine`,
     API_KEY: `apiKey`,
     PROMPT: `customPrompt`,
@@ -26,8 +25,8 @@ export const END_POINTS = {
 };
 
 export const VIEW_IDS = {
-    CONTAINER: 'helloWorldContainer',
-    VIEW: 'helloWorldView'
+    CONTAINER: 'AutoCommiterContainer',
+    VIEW: 'AutoCommiterView'
 };
 
 export const SCM_ACTIONS = {

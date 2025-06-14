@@ -1,8 +1,8 @@
 {
-  "name": "hn02-hello-world-extension",
-  "displayName": ".",
-  "description": "first vscode extension",
-  "version": "0.0.1",
+  "name": "ptn-ai-commit-generator",
+  "displayName": "PTN AI Commit Generator",
+  "description": "We’re building an AI-powered Commit Message Generator as a VS Code extension that automatically generates clear, conventional commit messages from staged Git diffs.",
+  "version": "3.0.0",
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -10,40 +10,42 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:hn02-hello-world-extension.generateMessage",
-    "onCommand:hn02-hello-world-extension.getCodeReview",
-    "onView:helloWorldView"
+    "onCommand:ptn-ai-commit-generator.generateMessage",
+    "onCommand:ptn-ai-commit-generator.getCodeReview",
+    "onView:AutoCommiterView"
   ],
   "main": "./out/extension.js",
+  "publisher": "thaonguyen",
+  "icon": "icon.png",
   "contributes": {
     "commands": [
       {
-        "command": "hn02-hello-world-extension.generateMessage",
+        "command": "ptn-ai-commit-generator.generateMessage",
         "title": "Generate Message"
       },
       {
-        "command": "hn02-hello-world-extension.commitAction",
+        "command": "ptn-ai-commit-generator.commitAction",
         "title": "Execute SCM Action"
       },
       {
-        "command": "hn02-hello-world-extension.getCodeReview",
+        "command": "ptn-ai-commit-generator.getCodeReview",
         "title": "Get Code Review"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "helloWorldContainer",
-          "title": "Auto Generated",
+          "id": "AutoCommiterContainer",
+          "title": "PTN AI Commit Generator",
           "icon": "$(sparkle)"
         }
       ]
     },
     "views": {
-      "helloWorldContainer": [
+      "AutoCommiterContainer": [
         {
-          "id": "helloWorldView",
-          "name": "Hello World",
+          "id": "AutoCommiterView",
+          "name": "PTN AI Commit Generator",
           "type": "webview",
           "icon": "$(globe)"
         }
@@ -52,53 +54,37 @@
     "configuration": {
       "title": "AI Commit Generator",
       "properties": {
-        "hn02-hello-world-extension.format": {
+        "ptn-ai-commit-generator.format": {
           "type": "string",
           "default": "CEP-XXX: {message}",
           "description": "Template format for the commit message"
         },
-        "hn02-hello-world-extension.commitType": {
-          "type": "string",
-          "enum": [
-            "none",
-            "feat",
-            "fix",
-            "docs",
-            "refactor"
-          ],
-          "default": "none",
-          "description": "Select the commit type to use for generated messages"
-        },
-        "hn02-hello-world-extension.maxLengthInLine": {
+        "ptn-ai-commit-generator.maxLengthInLine": {
           "type": "number",
-          "default": 150,
+          "default": 100,
           "description": "Maximum allowed length for the commit message in a single line"
         },
-        "hn02-hello-world-extension.backendUrl": {
+        "ptn-ai-commit-generator.backendBaseUrl": {
           "type": "string",
-          "default": "http://localhost:3001",
+          "default": "https://hackaithon2025-backend.onrender.com",
           "description": "URL of the backend API that generates commit messages."
         },
-        "hn02-hello-world-extension.authToken": {
+        "ptn-ai-commit-generator.authToken": {
           "type": "string",
           "default": "",
           "description": "Authorization token for backend API (AUTH_SECRET)."
         },
-        "hn02-hello-world-extension.apiKey": {
+        "ptn-ai-commit-generator.apiKey": {
           "type": "string",
           "default": "",
-          "description": "OpenAI key."
+          "description": "OpenAI API key."
         },
-        "hn02-hello-world-extension.model": {
+        "ptn-ai-commit-generator.model": {
           "type": "string",
           "default": "gpt-4o",
-          "enum": [
-            "gpt-4o",
-            "gpt-3.5-turbo"
-          ],
           "description": "OpenAI model to use for generating commit messages."
         },
-        "hn02-hello-world-extension.customPrompt": {
+        "ptn-ai-commit-generator.customPrompt": {
           "type": "string",
           "default": "",
           "description": ""
@@ -117,6 +103,8 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "@types/vscode": "^1.100.0",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
@@ -128,6 +116,8 @@
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "child_process": "^1.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "util": "^0.12.5"
   }
 }

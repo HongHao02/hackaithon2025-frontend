@@ -20,17 +20,17 @@ export function getNonce() {
 
 export function getBackendUrl(endPoint: string): string {
     const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
-    const backendUrl = config.get(CONFIG_KEYS.BACKEND_URL) as string;
+    const backendBaseUrl = config.get(CONFIG_KEYS.BACKEND_URL) as string;
 
     if (!endPoint) {
         throw new Error(`Endpoint ${endPoint} invalid.`);
     }
 
-    if (!backendUrl) {
-        throw new Error(`Backend URL not found in configuration for key: ${CONFIG_KEYS.BACKEND_URL}`);
+    if (!backendBaseUrl) {
+        throw new Error(`Backend Base URL not found in configuration for key: ${CONFIG_KEYS.BACKEND_URL}`);
     }
 
-    return `${backendUrl}${endPoint}`;
+    return `${backendBaseUrl}${endPoint}`;
 }
 
 export function getStagedDiffOrShowError(): { cwd: string, diff: string } | undefined {
