@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Register the Generate Message command
     const generateMessageCommand = vscode.commands.registerCommand(COMMANDS.GENERATE_MESSAGE, async (data: { webviewView: vscode.WebviewView, model: string }) => {
         const { webviewView, model } = data;
-        webviewView.webview.postMessage({ type: 'startLoading' });
+        webviewView.webview.postMessage({ type: 'generateMessageStarted' });
 
         const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
         const authToken = config.get(CONFIG_KEYS.AUTH_TOKEN) as string;
@@ -26,12 +26,12 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             const result = getStagedDiffOrShowError();
             if (!result) {
-                webviewView.webview.postMessage({ type: 'stopLoading' });
+                webviewView.webview.postMessage({ type: 'generateMessageCompleted' });
                 return;
             }
             finalDiff = result.diff.trim();
         } catch (error) {
-            webviewView.webview.postMessage({ type: 'stopLoading' });
+            webviewView.webview.postMessage({ type: 'generateMessageCompleted' });
             vscode.window.showErrorMessage(`Failed to get Git diff: ${error}`);
             return;
         }
@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to fetch message: ${error}`);
         } finally {
-            webviewView.webview.postMessage({ type: 'stopLoading' });
+            webviewView.webview.postMessage({ type: 'generateMessageCompleted' });
         }
     });
 
@@ -141,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Register the Get Code Review command
     const getCodeReviewCommand = vscode.commands.registerCommand(COMMANDS.GET_CODE_REVIEW, async (data: { webviewView: vscode.WebviewView, model: string }) => {
         const { webviewView, model } = data;
-        webviewView.webview.postMessage({ type: 'startLoading' });
+        webviewView.webview.postMessage({ type: 'codeReviewStarted' });
 
         const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
         const apiKey = config.get(CONFIG_KEYS.API_KEY) as string;
@@ -150,7 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
         const codeReviewApiEndpoint = getBackendUrl(END_POINTS.GENERATE.CODE_REVIEW);
         if (!codeReviewApiEndpoint) {
             vscode.window.showErrorMessage(`Code review API endpoint not found in configuration for key: ${END_POINTS.GENERATE.CODE_REVIEW}`);
-            webviewView.webview.postMessage({ type: 'stopLoading' });
+            webviewView.webview.postMessage({ type: 'codeReviewCompleted' });
             return;
         }
 
@@ -158,13 +158,13 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             const result = getStagedDiffOrShowError();
             if (!result) {
-                webviewView.webview.postMessage({ type: 'stopLoading' });
+                webviewView.webview.postMessage({ type: 'codeReviewCompleted' });
                 return;
             };
         
             finalDiff = result.diff.trim();
         } catch (error) {
-            webviewView.webview.postMessage({ type: 'stopLoading' });
+            webviewView.webview.postMessage({ type: 'codeReviewCompleted' });
             vscode.window.showErrorMessage(`Failed to get Git diff: ${error}`);
             return;
         }
@@ -175,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to fetch code review: ${error}`);
         } finally {
-            webviewView.webview.postMessage({ type: 'stopLoading' });
+            webviewView.webview.postMessage({ type: 'codeReviewCompleted' });
         }
     });
 

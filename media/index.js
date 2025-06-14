@@ -131,30 +131,17 @@ window.addEventListener('message', (event) => {
             break;
         case 'startLoading':
             loader.style.display = 'flex';
-            generateButton.disabled = true;
             commitDropdown.disabled = true;
             modelDropdownGenerate.disabled = true;
             modelDropdownReview.disabled = true;
-            generateButton.classList.add('processing');
-            // Disable code review button
-            codeReviewButton.classList.add('processing');
-            codeReviewButton.disabled = true;
-            codeReviewButton.textContent = 'Processing... Please wait';
 
             console.log('Started loading state');
             break;
         case 'stopLoading':
             loader.style.display = 'none';
-            generateButton.disabled = false;
             commitDropdown.disabled = false;
             modelDropdownGenerate.disabled = false;
             modelDropdownReview.disabled = false;
-            generateButton.classList.remove('processing');
-
-            // Disable code review button
-            codeReviewButton.classList.remove('processing');
-            codeReviewButton.disabled = false;
-            codeReviewButton.textContent = 'Get Code Review';
 
             console.log('Stopped loading state');
             break;
@@ -213,6 +200,38 @@ window.addEventListener('message', (event) => {
                 type: 'confirmationResponse',
                 confirmed: confirm(message.value)
             });
+            break;
+        case 'generateMessageStarted':
+            // Disable generate commit message button
+            generateButton.disabled = true;
+            generateButton.classList.add('processing');
+            generateButton.textContent = 'Processing... Please wait';
+
+            console.log('Started message generation loading state');
+            break;
+        case 'generateMessageCompleted':
+            // Reset generate commit message button
+            generateButton.disabled = false;
+            generateButton.classList.remove('processing');
+            generateButton.textContent = 'Generate Message';
+            
+            console.log('Completed message generation');
+            break;
+        case 'codeReviewStarted':
+            // Disable code review button
+            codeReviewButton.disabled = true;
+            codeReviewButton.classList.add('processing');
+            codeReviewButton.textContent = 'Processing... Please wait';
+
+            console.log('Started code review loading state');
+            break;
+        case 'codeReviewCompleted':
+            // Reset code review button
+            codeReviewButton.disabled = false;
+            codeReviewButton.classList.remove('processing');
+            codeReviewButton.textContent = 'Get Code Review';
+
+            console.log('Completed code review');
             break;
     }
 });
